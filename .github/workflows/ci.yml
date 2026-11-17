@@ -40,11 +40,30 @@ jobs:
       - run: uv run pytest -q --cov=src --cov-fail-under=85
   web:
     runs-on: ubuntu-latest
+    # The e2e job starts the API and worker through tools/e2e_stack.py, so it needs uv, Postgres and Redis.
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env: { POSTGRES_USER: vexledger, POSTGRES_PASSWORD: vexledger, POSTGRES_DB: vexledger }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vexledger" --health-interval 3s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      VEXLEDGER_DATABASE_URL: postgresql+asyncpg://vexledger:vexledger@localhost:5432/vexledger
+      VEXLEDGER_REDIS_URL: redis://localhost:6379/0
     defaults:
       run:
         working-directory: web
     steps:
       - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+        working-directory: .
       - uses: actions/setup-node@v4
         with: { node-version: 24, cache: npm, cache-dependency-path: web/package-lock.json }
       - run: npm ci
