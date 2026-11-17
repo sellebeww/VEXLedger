@@ -1,0 +1,108 @@
+# Copyright (c) 2026 Vassel Goleyu. MIT License.
+# CI only: nothing here deploys anything. Audits and the SBOM are reports (they never fail the build).
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env: { POSTGRES_USER: vexledger, POSTGRES_PASSWORD: vexledger, POSTGRES_DB: vexledger }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U vexledger" --health-interval 3s --health-timeout 3s --health-retries 20
+      redis:
+        image: redis:8-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 3s --health-timeout 3s --health-retries 20
+    env:
+      REQUIRE_INFRA: "1"
+      VEXLEDGER_DATABASE_URL: postgresql+asyncpg://vexledger:vexledger@localhost:5432/vexledger
+      VEXLEDGER_REDIS_URL: redis://localhost:6379/0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy --strict src
+      - run: uv run alembic upgrade head
+      # Integration tests run here against the service containers (REQUIRE_INFRA makes them fail, not skip).
+      - run: uv run pytest -q --cov=src --cov-fail-under=85
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+  images:
+    # Builds both images and smoke-tests the production compose stack (local TLS, SYNTHETIC OSV data).
+    runs-on: ubuntu-latest
+    needs: [backend, web]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: deploy/smoke.sh
+  audit:
+    # Reports only: findings are written to the job summary and an artifact, the build stays green.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm, cache-dependency-path: web/package-lock.json }
+      - run: uv sync --locked
+      - name: pip-audit
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          uv run pip-audit 2>&1 | tee pip-audit.txt
+      - name: npm audit (production dependencies)
+        continue-on-error: true
+        working-directory: web
+        run: |
+          set -o pipefail
+          npm ci --ignore-scripts
+          npm audit --omit=dev 2>&1 | tee ../npm-audit.txt
+      - name: Summary
+        if: always()
+        run: |
+          { echo '### pip-audit'; echo '```'; cat pip-audit.txt; echo '```'
+            echo '### npm audit --omit=dev'; echo '```'; cat npm-audit.txt; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: audit-reports
+          path: |
+            pip-audit.txt
+            npm-audit.txt
+  sbom:
+    # Dogfooding: an SBOM of this repo's own Python environment, produced by the official tool.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - run: uv run cyclonedx-py environment --pyproject pyproject.toml --mc-type application --sv 1.6 --of JSON -o vexledger.cdx.json
+      - uses: actions/upload-artifact@v4
+        with: { name: vexledger-sbom, path: vexledger.cdx.json }

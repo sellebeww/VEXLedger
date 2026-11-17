@@ -1,0 +1,25 @@
+# Copyright (c) 2026 Vassel Goleyu. MIT License.
+# SITE_ADDRESS is your domain (Caddy then gets and renews a Let's Encrypt certificate by itself),
+# `localhost` (local TLS from Caddy's own CA, for testing) or `:80` (plain HTTP behind another proxy).
+{$SITE_ADDRESS} {
+	encode zstd gzip
+
+	@backend path /api/* /healthz /readyz /docs /redoc /openapi.json
+	handle @backend {
+		reverse_proxy app:8000
+	}
+
+	handle {
+		header {
+			X-Content-Type-Options nosniff
+			X-Frame-Options DENY
+			Referrer-Policy no-referrer
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			Permissions-Policy "camera=(), microphone=(), geolocation=()"
+			# 'unsafe-inline' stays because the Nuxt SPA shell inlines its payload and styles;
+			# everything else (other origins, plugins, framing, base tag) is locked down.
+			Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		}
+		reverse_proxy web:8080
+	}
+}

@@ -1,0 +1,19 @@
+{
+  "id": "PYSEC-2099-1",
+  "modified": "2099-01-01T00:00:00Z",
+  "aliases": [
+    "GHSA-synt-0001-aaaa"
+  ],
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "synthetic-pkg"
+      },
+      "versions": [
+        "1.0"
+      ]
+    }
+  ],
+  "database_specific": {}
+}

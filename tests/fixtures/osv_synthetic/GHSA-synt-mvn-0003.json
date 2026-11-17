@@ -1,0 +1,29 @@
+{
+  "id": "GHSA-synt-mvn-0003",
+  "modified": "2099-01-01T00:00:00Z",
+  "aliases": [
+    "CVE-2099-0003"
+  ],
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "Maven",
+        "name": "org.synthetic:lib"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "0"
+            },
+            {
+              "fixed": "2.1-1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "database_specific": {}
+}

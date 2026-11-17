@@ -1,0 +1,104 @@
+{
+  "@context": "https://openvex.dev/ns/v0.2.0",
+  "@id": "https://vex.example.test/vex/demo-app/1.2.0/v1",
+  "author": "Example Org (synthetic)",
+  "timestamp": "2030-01-02T00:00:00Z",
+  "version": 1,
+  "statements": [
+    {
+      "vulnerability": {
+        "name": "CVE-2099-0001",
+        "aliases": [
+          "GHSA-synt-0001-aaaa",
+          "PYSEC-2099-1"
+        ]
+      },
+      "timestamp": "2030-01-01T12:00:00Z",
+      "products": [
+        {
+          "@id": "pkg:generic/demo-app@1.2.0",
+          "subcomponents": [
+            {
+              "@id": "pkg:pypi/synthetic-pkg@1.5"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "vulnerable_code_not_present",
+      "impact_statement": "The vulnerable function is never called by this product."
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2099-0007"
+      },
+      "timestamp": "2030-01-01T12:00:00Z",
+      "products": [
+        {
+          "@id": "pkg:generic/demo-app@1.2.0",
+          "subcomponents": [
+            {
+              "@id": "pkg:pypi/other@2.0"
+            }
+          ]
+        }
+      ],
+      "status": "under_investigation"
+    },
+    {
+      "vulnerability": {
+        "name": "CVE-2099-0008"
+      },
+      "timestamp": "2030-01-01T12:00:00Z",
+      "products": [
+        {
+          "@id": "pkg:generic/demo-app@1.2.0",
+          "subcomponents": [
+            {
+              "@id": "pkg:pypi/inh@3.0"
+            }
+          ]
+        }
+      ],
+      "status": "not_affected",
+      "justification": "component_not_present",
+      "impact_statement": "The vulnerable function is never called by this product."
+    },
+    {
+      "vulnerability": {
+        "name": "GHSA-synt-npm-0002"
+      },
+      "timestamp": "2030-01-01T13:00:00Z",
+      "products": [
+        {
+          "@id": "pkg:generic/demo-app@1.2.0",
+          "subcomponents": [
+            {
+              "@id": "pkg:npm/%40synthetic/lib@1.0.1"
+            }
+          ]
+        }
+      ],
+      "status": "affected",
+      "action_statement": "Upgrade to 2.0."
+    },
+    {
+      "vulnerability": {
+        "name": "GO-2099-0004"
+      },
+      "timestamp": "2030-01-01T12:00:00Z",
+      "products": [
+        {
+          "@id": "pkg:generic/demo-app@1.2.0",
+          "subcomponents": [
+            {
+              "@id": "pkg:golang/github.com/Synthetic/Mod@v1.3.0"
+            }
+          ]
+        }
+      ],
+      "status": "fixed",
+      "status_notes": "Fixed by upgrading to 2.0."
+    }
+  ]
+}

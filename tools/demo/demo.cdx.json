@@ -1,0 +1,19 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {"bom-ref": "root", "type": "application", "name": "demo-app", "version": "1.0.0"}
+  },
+  "components": [
+    {"bom-ref": "py", "type": "library", "name": "synthetic-pkg", "version": "1.0", "purl": "pkg:pypi/synthetic-pkg@1.0"},
+    {"bom-ref": "npm", "type": "library", "name": "@synthetic/lib", "version": "1.0.0", "purl": "pkg:npm/%40synthetic/lib@1.0.0"},
+    {"bom-ref": "mvn", "type": "library", "name": "lib", "group": "org.synthetic", "version": "1.0", "purl": "pkg:maven/org.synthetic/lib@1.0"},
+    {"bom-ref": "cargo", "type": "library", "name": "unsupported-crate", "version": "0.3.0", "purl": "pkg:cargo/unsupported-crate@0.3.0"},
+    {"bom-ref": "nopurl", "type": "library", "name": "vendored-blob", "version": "7"}
+  ],
+  "dependencies": [
+    {"ref": "root", "dependsOn": ["py", "npm", "cargo", "nopurl"]},
+    {"ref": "npm", "dependsOn": ["mvn"]}
+  ]
+}

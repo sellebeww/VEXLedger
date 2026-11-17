@@ -1,0 +1,28 @@
+{
+  "id": "OSV-2099-0006",
+  "modified": "2099-01-01T00:00:00Z",
+  "aliases": [],
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "synthetic-pkg"
+      },
+      "ranges": [
+        {
+          "type": "GIT",
+          "repo": "https://example.invalid/synthetic.git",
+          "events": [
+            {
+              "introduced": "0"
+            },
+            {
+              "fixed": "0123456789abcdef0123456789abcdef01234567"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "database_specific": {}
+}

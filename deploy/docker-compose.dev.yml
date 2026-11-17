@@ -1,0 +1,27 @@
+# Copyright (c) 2026 Vassel Goleyu. MIT License.
+# Dev infrastructure only. Credentials are local dummies, never use them outside a dev machine.
+name: vexledger-dev
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_USER: vexledger
+      POSTGRES_PASSWORD: vexledger
+      POSTGRES_DB: vexledger
+    ports: ["127.0.0.1:5433:5432"]
+    volumes: ["pgdata:/var/lib/postgresql"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vexledger -d vexledger"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  redis:
+    image: redis:8-alpine
+    ports: ["127.0.0.1:6380:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  pgdata:

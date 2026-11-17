@@ -1,0 +1,33 @@
+{
+  "id": "GHSA-synt-npm-0002",
+  "modified": "2099-01-01T00:00:00Z",
+  "aliases": [],
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "npm",
+        "name": "@synthetic/lib"
+      },
+      "ranges": [
+        {
+          "type": "SEMVER",
+          "events": [
+            {
+              "introduced": "1.0.0"
+            },
+            {
+              "fixed": "1.0.2"
+            },
+            {
+              "introduced": "3.0.0"
+            },
+            {
+              "fixed": "3.2.5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "database_specific": {}
+}
